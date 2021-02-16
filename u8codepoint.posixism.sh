@@ -14,6 +14,7 @@ fold -b -s -w 1 |
 grep '[0-9a-f]' |
 paste -d '\0' - - # portabler than -d ''
 ;;(*)
+tr -Cs 0123456789abcdef '[\n*]' |
 grep .
 ;;esac |
 sed '
