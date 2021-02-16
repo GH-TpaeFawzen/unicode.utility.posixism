@@ -3,20 +3,9 @@
 cat ${1:+"$@"} |
 od -A n -t x1 -v |
 tr ABCDEF abcdef |
-# TODO which is faster?
-case default in (default)
-tr -Cs 0123456789abcdef '[\n*]' |
-fold -w 1 |
+tr -Cd abcdef0123456789\\n |
+fold -w 2 |
 grep . |
-paste -d '\0' - - # portabler than -d ''
-;;(*)
-fold -b -s -w 1 |
-grep '[0-9a-f]' |
-paste -d '\0' - - # portabler than -d ''
-;;(*)
-tr -Cs 0123456789abcdef '[\n*]' |
-grep .
-;;esac |
 sed '
   /^[0-7].$/s/U+00&/
   t
