@@ -2,7 +2,7 @@
 
 cat ${1:+"$@"} |
 od -A n -t x1 -v |
-tr ABCDEFq abcdef |
+tr ABCDEF abcdef |
 # TODO which is faster?
 case default in (default)
 tr -Cs 0123456789abcdef '[\n*]' |
