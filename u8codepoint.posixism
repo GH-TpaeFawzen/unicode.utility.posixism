@@ -11,7 +11,7 @@ tr -Cd abcdef0123456789\\n |
 fold -w 2 |
 grep . |
 sed '
-  /^[0-7].$/s/U+00&/
+  s/^[0-7].$/U+00&/
   t
   
   # 110xxxxx 10xxxxxx
