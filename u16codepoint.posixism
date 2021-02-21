@@ -149,5 +149,11 @@ sed '
   s/x1110/e/g
   s/x1111/f/g
 ' |
-tee "$(tty)" |
-{ ! grep -q \!; }
+tr abcdef ABCDEF
+awk -v fail=0 '
+  /!/{print$0|"cat 1>&2";fail=1;}
+  /!/!{print$0;}
+  END{exit fail;}
+'
+
+exit $?
