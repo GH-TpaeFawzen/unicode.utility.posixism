@@ -121,7 +121,11 @@ sed '
 ' |
 case $mayrmbom in (yes)
   sed '
-    1/ef$/{
+    1{
+      s/ef$/&/
+      t yes0
+      b
+      : yes0
       $!N
       s/bb$//
       t yes
