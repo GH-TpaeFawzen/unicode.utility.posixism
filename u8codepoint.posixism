@@ -141,16 +141,11 @@ sed '
   s/^..\(...\)$/U+0\1/
 ' |
 case $mayrmbom in (yes)
-  # EFBBBF
+  # efbbbf
+  # U+feff
   sed '
     1{
-      /ef/!b
-      $b
-      N
-      /bb$/!b
-      $b
-      N
-      /bf$/d
+      /U+feff/d
     }
   '
 ;;(*)
