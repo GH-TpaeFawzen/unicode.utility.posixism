@@ -120,19 +120,16 @@ sed '
   s/^..\(...\)$/U+0\1/
 ' |
 case $mayrmbom in (yes)
+  # EFBBBF
   sed '
     1{
-      s/ef$/&/
-      t yes0
-      b
-      : yes0
-      $!N
-      s/bb$//
-      t yes
-      b
-      : yes
-      $!N
-      s/^.*bf$/U+FEFF/
+      /ef/!b
+      $b
+      N
+      /bb$/!b
+      $b
+      N
+      /bf$/d
     }
   '
 ;;(*)
