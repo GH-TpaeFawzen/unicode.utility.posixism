@@ -1,0 +1,153 @@
+#!/bin/sh
+
+# written by TpaeFawzen
+
+export LC_ALL=C
+
+cat |
+od -A n -t x1 -v |
+tr ABCDEF abcdef |
+tr -d ' ' |
+fold -w 4 |
+case "$mayrmbom" in (y)
+  sed -n '
+    # determine endian
+    1{
+      /^feff$/{
+        # BE
+        d
+      }
+      /^fffe$/{
+        : lestart
+        s/.*//
+        $q
+        N
+        s/.\(..\)\(..\)/\2\1/p
+        b lestart
+      }
+      # BE
+      p
+      b
+    }
+    # if reached, then it is BE
+    p
+  '
+;;(*)
+  sed -n '
+    # determine endian
+    1{
+      /^feff$/{
+        # BE
+      }
+      /^fffe$/{
+        p
+        : lestart
+        s/.*//
+        $q
+        N
+        s/.\(..\)\(..\)/\2\1/p
+        b lestart
+      }
+      # BE
+      p
+      b
+    }
+    # if reached, then it is BE
+    p
+  '
+;;esac |
+sed '
+  # U+0000 - U+D7FF are unchanged on u16
+  # U+E000 - U+FFFF are unchanged on u16
+  s/^[0-cef]/U+&/
+  t
+  s/^d[0-7]/U+&/
+  t
+  
+  # now surrogate
+  # u16.       1101 10ww wwxx xxxx 1101 11xx xxxx xxxx
+  # codepoint. 000u uuuu xxxx xx          xx xxxx xxxx
+  # obtw.      wwww = uuuuu - 1
+  N
+  s/[^0-9a-f]//
+  
+  # reject invalids; examine bottom 2 bytes
+  /[!d]...$/s/^/! /
+  t
+  /[!c-f]..$/^/! /
+  t
+  
+  # to binary (ignoring ignored bits)
+  # 1101 10ww wwxx xxxx 1101 11xx xxxx xxxx
+  #     x    z    z         y
+  s/^.\(.\)\(.\)\(.\).\(.\)\(..\)/x\1z\2z\3y\4\5/
+  
+  #x    z    z    y
+  # 10ww wwxx xxxx 11xx xxxx xxxx
+  #        x    x
+  s/x8/00/
+  s/x9/01/
+  s/xa/10/
+  s/xb/11/
+  
+  s/yc/00/
+  s/yd/01/
+  s/ye/10/
+  s/yf/11/
+  
+  s/z0/00x00/g
+  s/z1/00x01/g
+  s/z2/00x10/g
+  s/z3/00x11/g
+  s/z4/01x00/g
+  s/z5/01x01/g
+  s/z6/01x10/g
+  s/z7/01x11/g
+  s/z8/10x00/g
+  s/z9/10x01/g
+  s/za/10x10/g
+  s/zb/10x11/g
+  s/zc/11x00/g
+  s/zd/11x01/g
+  s/ze/11x10/g
+  s/zf/11x11/g
+  
+  # do wwww + 1 = uuuuu
+  # also to hex
+  s/^0000/U+1x/
+  s/^0001/U+2x/
+  s/^0010/U+3x/
+  s/^0011/U+4x/
+  s/^0100/U+5x/
+  s/^0101/U+6x/
+  s/^0110/U+7x/
+  s/^0111/U+8x/
+  s/^1000/U+9x/
+  s/^1001/U+ax/
+  s/^1010/U+bx/
+  s/^1011/U+cx/
+  s/^1100/U+dx/
+  s/^1101/U+ex/
+  s/^1110/U+fx/
+  s/^1111/U+10x/
+  
+  # final bin2hex
+  s/x0000/0/g
+  s/x0001/1/g
+  s/x0010/2/g
+  s/x0011/3/g
+  s/x0100/4/g
+  s/x0101/5/g
+  s/x0110/6/g
+  s/x0111/7/g
+  s/x1000/8/g
+  s/x1001/9/g
+  s/x1010/a/g
+  s/x1011/b/g
+  s/x1100/c/g
+  s/x1101/d/g
+  s/x1110/e/g
+  s/x1111/f/g
+' |
+tee "$(tty)" |
+{ ! grep -q \!; }
