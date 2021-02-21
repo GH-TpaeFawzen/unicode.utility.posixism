@@ -16,7 +16,7 @@ sed '
   
   # 110xxxxx 10xxxxxx
   # o   x    r   -
-  /^[cd]$/{
+  /^[cd]/{
     $!N
     # SUSv2 supports the following line!
     s/\n//
