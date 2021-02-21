@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# written by TpaeFawzen
+
+export LC_ALL=C
+
+cat ${1:+"$@"} |
+od -A n -t x1 -v |
+tr ABCDEF abcdef |
+tr -d ' ' |
+fold -w 8 |
+case $u32endian in (BE)
+  cat
+;;(LE)
+  sed 's/\(..\)\(..\)\(..\)\(..\)/\4\3\2\1/'
+;;('')
+  cat
+;;esac |
+sed '
+  s/^0000/U+/
+  t
+  s/^000\(.\)/U+\1/
+  t
+  s/^0010/U+10/
+  t
+  
+  # more than 0010ffff is invalid
+  s/^/! /
+' |
+case $mayrmbom in (y)
+  sed '
+    1{
+      /^U+feff$/d
+    }
+  '
+;;(*)
+  cat
+;;esac |
+tr abcdef ABCDEF |
+tee "$(tty)" |
+{ ! grep -q \! ; }
