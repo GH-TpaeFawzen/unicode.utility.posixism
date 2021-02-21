@@ -37,5 +37,10 @@ case $mayrmbom in (y)
   cat
 ;;esac |
 tr abcdef ABCDEF |
-tee "$(tty)" |
-{ ! grep -q \! ; }
+awk -v fail=0 '
+  /!/{print$0|"cat 1>&2";fail=1;}
+  /!/!{print$0;}
+  END{exit fail;}
+'
+
+exit $?
