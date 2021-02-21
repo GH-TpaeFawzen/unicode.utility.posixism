@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# written by TpaeFawzen
+
+export LC_ALL=C
+
 cat ${1:+"$@"} |
 od -A n -t x1 -v |
 tr ABCDEF abcdef |
@@ -132,6 +136,6 @@ case $mayrmbom in (yes)
 ;;esac |
 tr abcdef ABCDEF |
 tee "$(tty)" |
-{ ! grep -q invalid ; }
+{ ! grep -q '!' ; }
 
 exit $?
