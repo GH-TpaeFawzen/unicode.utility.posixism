@@ -7,7 +7,7 @@ export LC_ALL=C
 cat ${1:+"$@"} |
 od -A n -t x1 -v |
 tr ABCDEF abcdef |
-tr -Cd abcdef0123456789\\n |
+tr -d ' \t' |
 fold -w 2 |
 grep . |
 sed '
