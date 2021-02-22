@@ -7,7 +7,7 @@ export LC_ALL=C
 cat |
 od -A n -t x1 -v |
 tr ABCDEF abcdef |
-tr -d ' ' |
+tr -d ' \t' |
 fold -w 4 |
 case "$mayrmbom" in (y)
   sed -n '
