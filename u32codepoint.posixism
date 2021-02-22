@@ -7,7 +7,7 @@ export LC_ALL=C
 cat ${1:+"$@"} |
 od -A n -t x1 -v |
 tr ABCDEF abcdef |
-tr -d ' ' |
+tr -d ' \t' |
 fold -w 8 |
 case $u32endian in (BE)
   cat
